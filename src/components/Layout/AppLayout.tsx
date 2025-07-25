@@ -53,6 +53,18 @@ export default function AppLayout({
       ),
       href: '/performance'
     },
+    { 
+      id: 'profile', 
+      label: 'Mi Perfil', 
+      subtitle: 'Configurar Perfil', 
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V21h19.2v-1.8c0-3.2-6.4-4.8-9.6-4.8z"/>
+</svg>
+
+      ),
+      href: '/profile'
+    },
   ];
 
   const handleDrawerToggle = () => {
@@ -90,9 +102,15 @@ export default function AppLayout({
             {/* Sidebar Header */}
             <div className="sidebar-header">
               <div className="sidebar-logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#e91e63">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
+                
+  <img 
+    src="/logo.png" 
+    alt="Logo" 
+    width="24" 
+    height="24" 
+    style={{ fill: '#e91e63' }} // Nota: solo aplica si el PNG es monocromo transparente
+  />
+
                 <span className="sidebar-logo-text">sweeps<strong>TOUCH</strong></span>
               </div>
               <button className="sidebar-close" onClick={handleDrawerToggle}>
