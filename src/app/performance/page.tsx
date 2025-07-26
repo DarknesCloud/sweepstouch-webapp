@@ -1,248 +1,532 @@
 'use client';
-import { useState, useEffect } from 'react';
-import AppLayout from '../../components/Layout/AppLayout';
-import ProtectedRoute from '../../components/ProtectedRoute';
-import { useAuth } from '../../hooks/useAuth';
 
-// Mock data for charts
-const weeklyData = [
-  { day: 'Lun', horas: 4, ganancias: 125 },
-  { day: 'Mar', horas: 0, ganancias: 0 },
-  { day: 'Mié', horas: 4, ganancias: 125 },
-  { day: 'Jue', horas: 0, ganancias: 0 },
-  { day: 'Vie', horas: 4, ganancias: 125 },
-  { day: 'Sáb', horas: 0, ganancias: 0 },
-  { day: 'Dom', horas: 0, ganancias: 0 },
-];
+import React from 'react';
+import { Box, Card, CardContent, Typography, Button } from '@mui/material';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import AppLayout from '@/components/Layout/AppLayout';
 
-const monthlyData = [
-  { mes: 'Ene', turnos: 3, ganancias: 375 },
-  { mes: 'Feb', turnos: 2, ganancias: 250 },
-  { mes: 'Mar', turnos: 4, ganancias: 500 },
-  { mes: 'Abr', turnos: 3, ganancias: 375 },
-  { mes: 'May', turnos: 2, ganancias: 250 },
-  { mes: 'Jun', turnos: 1, ganancias: 125 },
-];
+const PerformancePage = () => {
+  // Datos para el gráfico
+  const chartData = [
+    { day: 'Lun', value: 35 },
+    { day: 'Mar', value: 60 },
+    { day: 'Mié', value: 85 },
+    { day: 'Jue', value: 40 },
+    { day: 'Vie', value: 95 },
+    { day: 'Sáb', value: 70 },
+    { day: 'Dom', value: 55 },
+  ];
 
-export default function PerformancePage() {
-  const { user } = useAuth();
-  const [selectedPeriod, setSelectedPeriod] = useState('week');
+  // Datos para el progreso del objetivo con estrellas
+  const progressData = [
+    { value: 300 },
+    { value: 600 },
+    { value: 800 },
+    { value: 1000 },
+  ];
 
-  const stats = {
-    totalShifts: user?.totalShifts || 15,
-    completedShifts: user?.completedShifts || 12,
-    upcomingShifts: user?.upcomingShifts || 2,
-    totalEarnings: user?.totalEarnings || 1875,
-    averageRating: 4.8,
-    completionRate: 95,
-    hoursWorked: 48,
-    thisWeekEarnings: 375,
-  };
+  // SVG personalizado para check
+  const CheckSVG = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" fill="#e91e63" />
+      <path
+        d="M9 12l2 2 4-4"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // SVG personalizado para dinero
+  const MoneySVG = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" fill="#e91e63" />
+      <path
+        d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // SVG personalizado para reloj
+  const ClockSVG = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" fill="#e91e63" />
+      <polyline
+        points="12,6 12,12 16,14"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // SVG personalizado para ubicación
+  const LocationSVG = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="#e91e63" />
+      <circle cx="12" cy="10" r="3" fill="white" />
+    </svg>
+  );
+
+  // SVG personalizado para tiempo
+  const TimeSVG = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" fill="#e91e63" />
+      <polyline
+        points="12,6 12,12 16,14"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // SVG personalizado para check pequeño
+  const SmallCheckSVG = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M20 6L9 17l-5-5"
+        stroke="#4caf50"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 
   return (
-    <ProtectedRoute requireAuth={true}>
-      <AppLayout currentPage="performance">
-        <div className="mobile-container">
-          <div className="performance-container">
-            {/* Header con hamburger menu */}
-            <div className="performance-header">
-              
-              <h1 className="performance-title">Mi Rendimiento</h1>
-            </div>
+    <AppLayout currentPage="performance">
+      <Box
+        sx={{
+          backgroundColor: '',
+          minHeight: '100vh',
+          padding: 2,
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        <Card
+          sx={{
+            backgroundColor: '#ededed',
+            maxWidth: 360,
+            width: '100%',
+          }}
+        >
+          <CardContent sx={{ padding: 3 }}>
+            {/* Header */}
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 'bold',
+                mb: 3,
+                color: '#333',
+                fontSize: '18px',
+              }}
+            >
+              Estadísticas Generales
+            </Typography>
 
-            <p className="performance-subtitle">
-              Revisa tu progreso y estadísticas de trabajo.
-            </p>
+            {/* Estadísticas principales - Cards grisáceas con números a la derecha */}
+            <Box sx={{ mb: 4 }}>
+              {/* Total de Turnos */}
+              <Card
+                sx={{
+                  mb: 2,
+                  backgroundColor: 'transparent',
 
-            {/* Period Selector */}
-            <div className="period-selector">
-              <button 
-                className={`period-button ${selectedPeriod === 'week' ? 'active' : ''}`}
-                onClick={() => setSelectedPeriod('week')}
+                  borderRadius: 2,
+                }}
               >
-                Semanal
-              </button>
-              <button 
-                className={`period-button ${selectedPeriod === 'month' ? 'active' : ''}`}
-                onClick={() => setSelectedPeriod('month')}
-              >
-                Mensual
-              </button>
-            </div>
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    py: 2.5,
+                    px: 2,
+                    '&:last-child': { pb: 2.5 },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <CheckSVG />
+                    <Box sx={{ ml: 2 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: '12px',
+                          mb: 0.5,
+                        }}
+                      >
+                        Total de Turnos
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 'bold',
+                      fontSize: '28px',
+                      lineHeight: 1,
+                      color: '#333',
+                    }}
+                  >
+                    3
+                  </Typography>
+                </CardContent>
+              </Card>
 
-            {/* Charts Section */}
-            {selectedPeriod === 'week' ? (
-              <div className="chart-container">
-                <h3 className="chart-title">Rendimiento Semanal</h3>
-                <div className="chart-content">
-                  <div className="chart-bars">
-                    {weeklyData.map((data, index) => (
-                      <div key={data.day} className="chart-bar-group">
-                        <div className="chart-bar-container">
-                          <div 
-                            className="chart-bar hours"
-                            style={{ height: `${(data.horas / 4) * 100}%` }}
-                          ></div>
-                        </div>
-                        <div className="chart-label">{data.day}</div>
-                        <div className="chart-value">{data.horas}h</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="chart-legend">
-                    <div className="legend-item">
-                      <div className="legend-color hours"></div>
-                      <span>Horas trabajadas</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="chart-container">
-                <h3 className="chart-title">Ganancias Mensuales</h3>
-                <div className="chart-content">
-                  <div className="line-chart">
-                    <svg viewBox="0 0 300 150" className="chart-svg">
-                      {/* Grid lines */}
-                      <defs>
-                        <pattern id="grid" width="50" height="30" patternUnits="userSpaceOnUse">
-                          <path d="M 50 0 L 0 0 0 30" fill="none" stroke="#e0e0e0" strokeWidth="1"/>
-                        </pattern>
-                      </defs>
-                      <rect width="300" height="150" fill="url(#grid)" />
-                      
-                      {/* Line chart */}
-                      <polyline
+              {/* Comisiones Generadas */}
+              <Card
+                sx={{
+                  mb: 2,
+                  backgroundColor: 'transparent',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  borderRadius: 2,
+                }}
+              >
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    py: 2.5,
+                    px: 2,
+                    '&:last-child': { pb: 2.5 },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <MoneySVG />
+                    <Box sx={{ ml: 2 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: '12px',
+                          mb: 0.5,
+                        }}
+                      >
+                        Comisiones Generadas
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 'bold',
+                      fontSize: '28px',
+                      lineHeight: 1,
+                      color: '#333',
+                    }}
+                  >
+                    $375
+                  </Typography>
+                </CardContent>
+              </Card>
+
+              {/* Promedio por turno */}
+              <Card
+                sx={{
+                  mb: 2,
+                  backgroundColor: 'transparent',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  borderRadius: 2,
+                }}
+              >
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    py: 2.5,
+                    px: 2,
+                    '&:last-child': { pb: 2.5 },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <ClockSVG />
+                    <Box sx={{ ml: 2 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: '12px',
+                          mb: 0.5,
+                        }}
+                      >
+                        Promedio por turno
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 'bold',
+                      fontSize: '28px',
+                      lineHeight: 1,
+                      color: '#333',
+                    }}
+                  >
+                    $75
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+
+            {/* Turno en Curso */}
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 'bold',
+                mb: 2,
+                color: '#333',
+                fontSize: '16px',
+              }}
+            >
+              Turno en Curso
+            </Typography>
+
+            <Box
+              sx={{
+                mb: 3,
+                p: 2.5,
+                backgroundColor: '#ffffff',
+                borderRadius: 1.5,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 'bold',
+                  mb: 2,
+                  fontSize: '16px',
+                  color: '#333',
+                }}
+              >
+                Chuan Supermarket
+              </Typography>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                <LocationSVG />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    fontSize: '13px',
+                    lineHeight: 1.4,
+                    ml: 1.5,
+                  }}
+                >
+                  Maple St, Berri Av, Apt. 3, 2nd Floor, Montreal, QC H2X 1Y4,
+                  Canada
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                <TimeSVG />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    fontSize: '13px',
+                    ml: 1.5,
+                  }}
+                >
+                  8:00 AM - 6:00 PM
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SmallCheckSVG />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#4caf50',
+                    fontWeight: 'medium',
+                    fontSize: '13px',
+                    ml: 1.5,
+                  }}
+                >
+                  Turno disponible
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Botón Iniciar a Prospectar */}
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{
+                backgroundColor: '#e91e63',
+                color: 'white',
+                fontWeight: 'bold',
+                py: 1.2,
+                mb: 4,
+                borderRadius: 4,
+                textTransform: 'none',
+                fontSize: '16px',
+                boxShadow: '0 4px 12px rgba(233, 30, 99, 0.3)',
+                '&:hover': {
+                  backgroundColor: '#c2185b',
+                  boxShadow: '0 6px 16px rgba(233, 30, 99, 0.4)',
+                },
+              }}
+            >
+              Iniciar a Prospectar
+            </Button>
+
+            {/* Progreso del Objetivo */}
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 'bold',
+                mb: 2,
+                color: '#333',
+                fontSize: '16px',
+              }}
+            >
+              Progreso del Objetivo
+            </Typography>
+
+            {/* Barra de progreso en raya diagonal con efecto 3D */}
+            <Box sx={{ mb: 2 }}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  height: 12,
+                  backgroundColor: '#f0f0f0',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  mb: 3,
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
+                  backgroundImage:
+                    'repeating-linear-gradient(45deg, #e91e63 0px, #e91e63 8px, #f0f0f0 8px, #f0f0f0 16px)',
+                  backgroundSize: '75% 100%',
+                  backgroundRepeat: 'no-repeat',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background:
+                      'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%)',
+                    borderRadius: 2,
+                  },
+                }}
+              ></Box>
+
+              {/* Estrellas con numeración - efecto 3D mejorado */}
+              <Box
+                sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}
+              >
+                {progressData.map((item, index) => (
+                  <Box
+                    key={index}
+                    sx={{ textAlign: 'center', position: 'relative' }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'inline-block',
+                        borderRadius: 2,
+                        p: 0.8,
+                        boxShadow:
+                          '0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8)',
+                        background:
+                          'linear-gradient(135deg, #ffffff 0%, #f0f0f0 50%, #e8e8e8 100%)',
+                        border: '1px solid rgba(0,0,0,0.1)',
+                        mb: 0.5,
+                        transform: 'translateY(-1px)',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow:
+                            '0 6px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.9)',
+                        },
+                      }}
+                    >
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
                         fill="none"
-                        stroke="#e91e63"
-                        strokeWidth="3"
-                        points={monthlyData.map((data, index) => 
-                          `${50 + index * 40},${150 - (data.ganancias / 500) * 120}`
-                        ).join(' ')}
-                      />
-                      
-                      {/* Data points */}
-                      {monthlyData.map((data, index) => (
-                        <circle
-                          key={data.mes}
-                          cx={50 + index * 40}
-                          cy={150 - (data.ganancias / 500) * 120}
-                          r="4"
+                      >
+                        <path
+                          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
                           fill="#e91e63"
+                          stroke="#c2185b"
+                          strokeWidth="0.5"
                         />
-                      ))}
-                    </svg>
-                    <div className="chart-x-labels">
-                      {monthlyData.map((data) => (
-                        <div key={data.mes} className="chart-x-label">{data.mes}</div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="chart-legend">
-                    <div className="legend-item">
-                      <div className="legend-color earnings"></div>
-                      <span>Ganancias ($)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+                      </svg>
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        color: '#e91e63',
+                        display: 'block',
+                        mt: 0.5,
+                        textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                      }}
+                    >
+                      {item.value}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
 
-            {/* Stats Summary */}
-            <div className="stats-summary">
-              <div className="summary-card">
-                <div className="summary-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#4caf50">
-                    <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
-                  </svg>
-                </div>
-                <div className="summary-content">
-                  <div className="summary-value">{stats.completionRate}%</div>
-                  <div className="summary-label">Tasa de Finalización</div>
-                </div>
-              </div>
+            {/* Rendimiento Histórico */}
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 'bold',
+                mb: 2,
+                color: '#333',
+                fontSize: '16px',
+              }}
+            >
+              Rendimiento Histórico
+            </Typography>
 
-              <div className="summary-card">
-                <div className="summary-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#ff9800">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                </div>
-                <div className="summary-content">
-                  <div className="summary-value">{stats.averageRating}</div>
-                  <div className="summary-label">Calificación Promedio</div>
-                </div>
-              </div>
-
-              <div className="summary-card">
-                <div className="summary-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#2196f3">
-                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
-                    <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                  </svg>
-                </div>
-                <div className="summary-content">
-                  <div className="summary-value">{stats.hoursWorked}h</div>
-                  <div className="summary-label">Horas Trabajadas</div>
-                </div>
-              </div>
-
-              <div className="summary-card">
-                <div className="summary-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#4caf50">
-                    <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
-                  </svg>
-                </div>
-                <div className="summary-content">
-                  <div className="summary-value">${stats.totalEarnings}</div>
-                  <div className="summary-label">Ganancias Totales</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Performance Insights */}
-            <div className="insights-section">
-              <h3 className="insights-title">Insights de Rendimiento</h3>
-              <div className="insights-list">
-                <div className="insight-item">
-                  <div className="insight-icon success">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
-                    </svg>
-                  </div>
-                  <span>Has completado el 95% de tus turnos asignados</span>
-                </div>
-                <div className="insight-item">
-                  <div className="insight-icon primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
-                    </svg>
-                  </div>
-                  <span>Ganancias promedio: $125 por turno</span>
-                </div>
-                <div className="insight-item">
-                  <div className="insight-icon info">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
-                      <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                    </svg>
-                  </div>
-                  <span>Promedio de 4 horas por turno</span>
-                </div>
-                <div className="insight-item">
-                  <div className="insight-icon warning">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  </div>
-                  <span>Calificación promedio: 4.8/5 estrellas</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AppLayout>
-    </ProtectedRoute>
+            <Box sx={{ height: 160, mb: 2 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+                  barCategoryGap="20%"
+                >
+                  <XAxis
+                    dataKey="day"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: '#666' }}
+                  />
+                  <YAxis hide />
+                  <Bar
+                    dataKey="value"
+                    fill="#e91e63"
+                    radius={[3, 3, 0, 0]}
+                    barSize={24}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    </AppLayout>
   );
-}
+};
 
+export default PerformancePage;

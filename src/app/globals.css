@@ -1,8 +1,14 @@
-@import "tailwindcss";
+@tailwind utilities;
 
+/* Puedes agregar aquí tus estilos globales si los necesitas */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
 }
 
 @theme inline {
