@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Logo from '../Logo';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -52,19 +53,7 @@ export default function AppLayout({
         </svg>
       ),
       href: '/performance'
-    },
-    { 
-      id: 'profile', 
-      label: 'Mi Perfil', 
-      subtitle: 'Configurar Perfil', 
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V21h19.2v-1.8c0-3.2-6.4-4.8-9.6-4.8z"/>
-</svg>
-
-      ),
-      href: '/profile'
-    },
+    }
   ];
 
   const handleDrawerToggle = () => {
@@ -102,19 +91,11 @@ export default function AppLayout({
             {/* Sidebar Header */}
             <div className="sidebar-header">
               <div className="sidebar-logo">
-                
-  <img 
-    src="/logo.png" 
-    alt="Logo" 
-    width="24" 
-    height="24" 
-    style={{ fill: '#e91e63' }} // Nota: solo aplica si el PNG es monocromo transparente
-  />
-
+                <Logo variant="symbol" size="small" />
                 <span className="sidebar-logo-text">sweeps<strong>TOUCH</strong></span>
               </div>
               <button className="sidebar-close" onClick={handleDrawerToggle}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#e91e63">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#666">
                   <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                 </svg>
               </button>
@@ -148,7 +129,7 @@ export default function AppLayout({
       {/* Bottom Navigation */}
       {showBottomNav && (
         <div className="bottom-navigation">
-          <div className="bottom-nav-container navbar-fixed-position">
+          <div className="bottom-nav-container">
             <button
               className={`bottom-nav-item ${bottomNavValue === 'dashboard' ? 'active' : ''}`}
               onClick={() => handleBottomNavChange('dashboard')}

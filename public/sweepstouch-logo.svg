@@ -1,0 +1,12 @@
+<svg width="180" height="120" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo Symbol - Circle with S -->
+  <circle cx="90" cy="45" r="35" fill="#E91E63"/>
+  <path d="M72 35 C72 35, 85 30, 95 35 C105 40, 108 50, 95 55 C85 60, 82 65, 95 70 C108 75, 105 85, 95 90 C85 95, 72 90, 72 90" 
+        stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+  
+  <!-- Text: sweeps -->
+  <text x="20" y="100" font-family="Arial, sans-serif" font-size="22" font-weight="400" fill="#E91E63">sweeps</text>
+  
+  <!-- Text: TOUCH -->
+  <text x="95" y="100" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#E91E63">TOUCH</text>
+</svg>

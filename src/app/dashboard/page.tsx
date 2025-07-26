@@ -270,8 +270,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        
-
         {/* Profile Selector Modal */}
         <ProfileSelector
           open={showProfileSelector}
@@ -281,5 +279,15 @@ export default function DashboardPage() {
       </AppLayout>
     </ProtectedRoute>
   );
+}
+
+// Helper function to get user initials
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(word => word.charAt(0))
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 }
 
