@@ -197,6 +197,9 @@ export default function DashboardPage() {
             <GananciasTotales />
 
             {/* History Section */}
+            <Typography variant="h6" fontWeight="bold" mb={2} sx={{p: 2}}>
+        Historial Reciente
+      </Typography>
             <RecentHistory
               loading={false}
               recentShifts={[
@@ -210,6 +213,20 @@ export default function DashboardPage() {
                 },
               ]}
             />
+             <RecentHistory
+              loading={false}
+              recentShifts={[
+                {
+                  id: 1,
+                  date: '2025-07-01',
+                  startTime: '8:00 AM',
+                  endTime: '12:00 PM',
+                  supermarketName: 'CTown Supermarket 272',
+                  address: 'Maple St, Perth Amboy, NJ 08861, USA',
+                },
+              ]}
+            />
+
           </div>
         </div>
 

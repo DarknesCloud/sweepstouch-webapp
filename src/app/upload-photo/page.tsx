@@ -191,21 +191,7 @@ export default function UploadPhotoPage() {
         </button>
 
         {/* Skip Button - opcional para usuarios que no quieren subir foto ahora */}
-        <button 
-          className="upload-skip-button"
-          onClick={handleSkip}
-          disabled={isUploading}
-          style={{ 
-            background: 'transparent', 
-            color: '#999', 
-            border: 'none', 
-            fontSize: '14px',
-            marginBottom: '20px',
-            cursor: 'pointer'
-          }}
-        >
-          Saltar por ahora
-        </button>
+        
 
         {/* Logo */}
         <div className="upload-logo">

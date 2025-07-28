@@ -20,9 +20,7 @@ export default function RecentHistory({ loading, recentShifts }) {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h6" fontWeight="bold" mb={2}>
-        Historial Reciente
-      </Typography>
+      
 
       {recentShifts.map((shift) => (
         <Card

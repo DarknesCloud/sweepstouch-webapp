@@ -44,7 +44,7 @@ export default function AppLayout({
     },
     { 
       id: 'performance', 
-      label: 'Mi Rendimiento', 
+      label: 'Rendimiento', 
       subtitle: 'Estadísticas y progreso', 
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -174,7 +174,7 @@ export default function AppLayout({
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
               </svg>
-              <span>Mi Rendimiento</span>
+              <span>Rendimiento</span>
             </button>
           </div>
         </div>
