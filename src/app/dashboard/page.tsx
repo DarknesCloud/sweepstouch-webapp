@@ -1,239 +1,338 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import AppLayout from '../../components/Layout/AppLayout';
-import ProtectedRoute from '../../components/ProtectedRoute';
-import ProfileSelector from '../../components/ProfileSelector';
-import { shiftAPI } from '../../services/api';
-import { Shift } from '../../types';
-import { Box, Button, Typography, Stack } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import { Avatar, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import RegistroCard from './RegistroCard';
-import TurnosCompletados from './TurnosCompletados';
-import ProximosTurnos from './ProximosTurnos';
-import GananciasTotales from './GananciasTotales';
-import RecentHistory from './RecentHistory';
+"use client";
+
+import { useState, useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useDashboardData, useActiveShift } from "../../hooks/usePromoterData";
+import AppLayout from "../../components/Layout/AppLayout";
+import ProtectedRoute from "../../components/ProtectedRoute";
+import ProfileSelector from "../../components/ProfileSelector";
+import {
+  Box,
+  Button,
+  Typography,
+  Stack,
+  CircularProgress,
+  Alert,
+  Avatar,
+  IconButton,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import RegistroCard from "./RegistroCard";
+import TurnosCompletados from "./TurnosCompletados";
+import ProximosTurnos from "./ProximosTurnos";
+import GananciasTotales from "./GananciasTotales";
+import RecentHistory from "./RecentHistory";
+import { getTimeRemaining } from "@/utils/getRemainingTime";
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [recentShifts, setRecentShifts] = useState<Shift[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showProfileSelector, setShowProfileSelector] = useState(false);
 
+  const userId = user?.id || user?._id || "";
+
+  const {
+    data: dashboardData,
+    isLoading: isDashboardLoading,
+    error: dashboardError,
+    refetch: refetchDashboard,
+  } = useDashboardData(userId);
+
+  const {
+    data: activeShift,
+    isLoading: isActiveShiftLoading,
+    error: activeShiftError,
+  } = useActiveShift(userId);
+
   useEffect(() => {
-    // Check if this is the user's first login
-    if (user && user.isFirstLogin) {
+    if (
+      user &&
+      (!user.profileImage || user.profileImage === "default-profile.png")
+    ) {
       setShowProfileSelector(true);
     }
   }, [user]);
 
-  useEffect(() => {
-    const fetchRecentShifts = async () => {
-      if (user?.id) {
-        try {
-          const shifts = await shiftAPI.getUserShifts(user.id);
-          setRecentShifts(shifts.slice(0, 3));
-        } catch (error) {
-          console.error('Error fetching shifts:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
+  const handleProfileSelected = () => setShowProfileSelector(false);
 
-    fetchRecentShifts();
-  }, [user]);
+  const isLoadingUser = !user || !userId;
+  const isLoading = isDashboardLoading || isActiveShiftLoading || isLoadingUser;
+  const hasError = dashboardError || activeShiftError;
 
-  const handleProfileSelected = (profileImage: string) => {
-    setShowProfileSelector(false);
-  };
-
-  const handleCloseProfileSelector = () => {
-    setShowProfileSelector(false);
-  };
-
-  if (!user) {
-    return null;
+  if (isLoadingUser) {
+    return (
+      <Box
+        minHeight="100vh"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <CircularProgress size={40} sx={{ color: "#e91e63" }} />
+      </Box>
+    );
   }
 
   return (
     <ProtectedRoute requireAuth={true}>
       <AppLayout currentPage="dashboard">
-        <div className="mobile-container">
-          <div className="dashboard-container">
-            {/* Profile Section */}
+        <Box className="mobile-container dashboard-container" px={2}>
+          <Box
+            position="relative"
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            padding={2}
+            borderRadius={1.5}
+            bgcolor="transparent"
+          >
+            <Box position="relative" mb={2}>
+              <Avatar
+                src={user.profileImage}
+                alt={user.name}
+                sx={{ width: 120, height: 120, fontSize: 36, bgcolor: "#ccc" }}
+              >
+                {!user.profileImage && getInitials(user.firstName || "U")}
+              </Avatar>
 
-            <Box
-              position="relative"
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              padding={2}
+              <IconButton
+                onClick={() => setShowProfileSelector(true)}
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  bgcolor: "white",
+                  border: "2px solid #f0f0f0",
+                  boxShadow: 1,
+                  p: 0.5,
+                  zIndex: 2,
+                }}
+              >
+                <CameraAltIcon sx={{ color: "#e91e63", fontSize: 20 }} />
+              </IconButton>
+            </Box>
+
+            <Typography variant="h5" fontWeight="bold" textAlign="center">
+              ¡Hola, {user.firstName}!
+            </Typography>
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              textAlign="center"
+            >
+              Bienvenida a tu panel de impulsadora.
+            </Typography>
+          </Box>
+
+          <Stack
+            direction="row"
+            justifyContent="center"
+            spacing={2}
+            mt={3}
+            mb={2}
+          >
+            <Button
+              variant="contained"
+              startIcon={<SearchIcon sx={{ fontSize: 24, color: "#ff2d8b" }} />}
+              href="/search-shifts"
               sx={{
-                backgroundColor: 'transparent',
-                borderRadius: 1.5, // menos redondeado (12px)
-                marginTop: 4,
-                marginX: 2,
+                bgcolor: "#f2f2f2",
+                borderRadius: 99,
+                color: "#000",
+                fontWeight: 600,
+                textTransform: "none",
+                px: 2.5,
+                py: 1.5,
+                fontSize: 14,
+                boxShadow: "none",
+                "&:hover": { bgcolor: "#e5e5e5" },
               }}
             >
-              {/* Avatar con icono de cámara */}
-              <Box position="relative" mb={2}>
-                <Avatar
-                  src={user.profileImage}
-                  alt={user.name}
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    fontSize: 36,
-                    backgroundColor: '#ccc',
-                  }}
-                >
-                  {!user.profileImage && getInitials(user.name || 'U')}
-                </Avatar>
+              Buscar Turnos
+            </Button>
 
-                <IconButton
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    backgroundColor: 'white',
-                    border: '2px solid #f0f0f0',
-                    boxShadow: 1,
-                    padding: '4px',
-                    zIndex: 2,
-                  }}
-                >
-                  <CameraAltIcon sx={{ color: '#e91e63', fontSize: 20 }} />
-                </IconButton>
-              </Box>
+            <Button
+              variant="contained"
+              startIcon={
+                <TrendingUpIcon sx={{ fontSize: 24, color: "#ff2d8b" }} />
+              }
+              href="/performance"
+              sx={{
+                bgcolor: "#f2f2f2",
+                borderRadius: 99,
+                color: "#000",
+                fontWeight: 600,
+                textTransform: "none",
+                px: 2.5,
+                py: 1.5,
+                fontSize: 14,
+                boxShadow: "none",
+                "&:hover": { bgcolor: "#e5e5e5" },
+              }}
+            >
+              Mi Rendimiento
+            </Button>
+          </Stack>
 
-              {/* Texto de bienvenida */}
-              <Typography variant="h5" fontWeight="bold" textAlign="center">
-                ¡Hola, {user.name.split(' ')[0]} {user.name.split(' ')[1]}!
-              </Typography>
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                textAlign="center"
+          {isLoading && (
+            <Box display="flex" justifyContent="center" my={4}>
+              <CircularProgress size={40} sx={{ color: "#e91e63" }} />
+            </Box>
+          )}
+
+          {hasError && (
+            <Box mx={2} my={2}>
+              <Alert
+                severity="error"
+                action={
+                  <Button
+                    color="inherit"
+                    size="small"
+                    onClick={() => refetchDashboard()}
+                  >
+                    Reintentar
+                  </Button>
+                }
               >
-                Bienvenida a tu panel de impulsadora.
+                Error al cargar los datos. Verifica tu conexión.
+              </Alert>
+            </Box>
+          )}
+
+          {!isLoading && !hasError && dashboardData && (
+            <>
+              {activeShift?.shift && (
+                <Box mb={2}>
+                  <Alert
+                    severity="info"
+                    icon={false}
+                    sx={{
+                      bgcolor: "#fff0f7",
+                      borderLeft: "6px solid #ff0aa2",
+                      borderRadius: 2,
+                      px: 2,
+                      py: 1.5,
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        fontWeight="bold"
+                        color="#ff0aa2"
+                        sx={{ mb: 0.5 }}
+                      >
+                        🔔 Turno activo en {activeShift.shift.storeInfo.name}
+                      </Typography>
+
+                      <Typography variant="caption" color="text.secondary">
+                        Contactos captados:{" "}
+                        <Box component="span" fontWeight="bold" color="#000">
+                          {activeShift.shift.totalParticipations}
+                        </Box>{" "}
+                        | Nuevos:{" "}
+                        <Box component="span" fontWeight="bold" color="#00C853">
+                          {activeShift.shift.newParticipations}
+                        </Box>{" "}
+                        | Existentes:{" "}
+                        <Box component="span" fontWeight="bold" color="#FF9100">
+                          {activeShift.shift.existingParticipations}
+                        </Box>{" "}
+                        | Tiempo restante:{" "}
+                        <Box component="span" fontWeight="bold" color="#000">
+                          {getTimeRemaining(activeShift.shift.endTime)}{" "}
+                          restantes
+                        </Box>
+                      </Typography>
+                    </Box>
+
+                    <Button
+                      variant="outlined"
+                      href={`https://capture.sweepstouch.com/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        mt: 1,
+                        color: "#ff0aa2",
+                        borderColor: "#ff0aa2",
+                        "&:hover": {
+                          borderColor: "#ff0aa2",
+                          bgcolor: "#ffe6f2",
+                        },
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        borderRadius: 4,
+                        px: 3,
+                        py: 1,
+                      }}
+                    >
+                      Ir a Turno
+                    </Button>
+                  </Alert>
+                </Box>
+              )}
+
+              <RegistroCard
+                total={dashboardData?.stats?.totalParticipations || 0}
+                loading={isLoading}
+                clienteExistente={dashboardData?.stats?.existingCustomers || 0}
+                clienteNuevo={dashboardData?.stats?.newCustomers || 0}
+              />
+              <TurnosCompletados
+                total={dashboardData.stats?.completedShifts || 0}
+                loading={isLoading}
+              />
+              <ProximosTurnos
+                total={dashboardData.stats?.today?.shiftsCompleted || 0}
+                loading={isLoading}
+              />
+              <GananciasTotales
+                total={dashboardData.stats?.totalEarnings || 0}
+                loading={isLoading}
+              />
+
+              <Typography variant="h6" fontWeight="bold" mb={2} px={2}>
+                Historial Reciente
               </Typography>
-            </Box>
+              <RecentHistory
+                loading={isLoading}
+                recentShifts={dashboardData.recentShifts}
+              />
+            </>
+          )}
 
-            {/* Action Buttons */}
-            <Box display="flex" justifyContent="center" mt={3} mb={2}>
-              <Stack direction="row" spacing={2}>
-                <Button
-                  variant="contained"
-                  startIcon={
-                    <SearchIcon
-                      sx={{
-                        fontSize: 24,
-                        color: '#ff2d8b',
-                        fontWeight: 'bold',
-                      }}
-                    />
-                  }
-                  onClick={() => (window.location.href = '/search-shifts')}
-                  sx={{
-                    backgroundColor: '#f2f2f2',
-                    borderRadius: '999px',
-                    color: '#000',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    px: 2.5,
-                    py: 1.5,
-                    boxShadow: 'none',
-                    fontSize: '14px',
-                    '&:hover': {
-                      backgroundColor: '#e5e5e5',
-                    },
-                  }}
-                >
-                  Buscar Turnos
-                </Button>
+          {!isLoading && !hasError && !dashboardData && (
+            <>
+              <RegistroCard
+                total={0}
+                loading={false}
+                clienteExistente={0}
+                clienteNuevo={0}
+              />
+              <TurnosCompletados total={0} loading={false} />
+              <ProximosTurnos total={0} loading={false} />
+              <GananciasTotales total={0} loading={false} />
 
-                <Button
-                  variant="contained"
-                  startIcon={
-                    <TrendingUpIcon
-                      sx={{
-                        fontSize: 24,
-                        color: '#ff2d8b',
-                        fontWeight: 'bold',
-                      }}
-                    />
-                  }
-                  onClick={() => (window.location.href = '/performance')}
-                  sx={{
-                    backgroundColor: '#f2f2f2',
-                    borderRadius: '999px',
-                    color: '#000',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    px: 2.5,
-                    py: 1.5,
-                    boxShadow: 'none',
-                    fontSize: '14px',
-                    '&:hover': {
-                      backgroundColor: '#e5e5e5',
-                    },
-                  }}
-                >
-                  Mi Rendimiento
-                </Button>
-              </Stack>
-            </Box>
+              <Typography variant="h6" fontWeight="bold" mb={2} px={2}>
+                Historial Reciente
+              </Typography>
+              <RecentHistory loading={false} recentShifts={[]} />
+            </>
+          )}
+        </Box>
 
-            {/* Stats Cards */}
-            <RegistroCard total={5} />
-            <TurnosCompletados />
-            <ProximosTurnos />
-            <GananciasTotales />
-
-            {/* History Section */}
-            <Typography variant="h6" fontWeight="bold" mb={2} sx={{p: 2}}>
-        Historial Reciente
-      </Typography>
-            <RecentHistory
-              loading={false}
-              recentShifts={[
-                {
-                  id: 1,
-                  date: '2025-07-01',
-                  startTime: '8:00 AM',
-                  endTime: '12:00 PM',
-                  supermarketName: 'CTown Supermarket 272',
-                  address: 'Maple St, Perth Amboy, NJ 08861, USA',
-                },
-              ]}
-            />
-             <RecentHistory
-              loading={false}
-              recentShifts={[
-                {
-                  id: 1,
-                  date: '2025-07-01',
-                  startTime: '8:00 AM',
-                  endTime: '12:00 PM',
-                  supermarketName: 'CTown Supermarket 272',
-                  address: 'Maple St, Perth Amboy, NJ 08861, USA',
-                },
-              ]}
-            />
-
-          </div>
-        </div>
-
-        {/* Profile Selector Modal */}
         <ProfileSelector
           open={showProfileSelector}
-          onClose={handleCloseProfileSelector}
+          onClose={() => setShowProfileSelector(false)}
           onProfileSelected={handleProfileSelected}
         />
       </AppLayout>
